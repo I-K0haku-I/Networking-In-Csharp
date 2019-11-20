@@ -50,13 +50,13 @@ namespace NetworkingLearning.TcpChat
                 }
                 else
                 {
-                    _cleanupNetworkResources();
+                    Common.CleanupNetworkResources(_client);
                     Console.WriteLine("The server didn't recognize us as a Viewer.\n[");
                 }
             }
             else
             {
-                _cleanupNetworkResources();
+                Common.CleanupNetworkResources(_client);
                 Console.WriteLine("Wasn't able to connect to the server at {0}", endPoint);
             }
         }
@@ -68,12 +68,15 @@ namespace NetworkingLearning.TcpChat
             Console.WriteLine("Disconnecting from the chat...");
         }
 
-        private void _cleanupNetworkResources()
-        {
-            _msgStream?.Close();
-            _msgStream = null;
-            _client.Close();
-        }
+        // private void _cleanupNetworkResources()
+        // {
+        //     byte[] msgBuffer = Encoding.UTF8.GetBytes("BYE");
+        //     _msgStream.Write(msgBuffer, 0, msgBuffer.Length); // BLOCKs!!!
+
+        //     _msgStream?.Close();
+        //     _msgStream = null;
+        //     _client.Close();
+        // }
 
         public void ListenForMessagesLoop()
         {
@@ -114,7 +117,7 @@ namespace NetworkingLearning.TcpChat
                 Running &= !_disconnectRequested;
             }
 
-            _cleanupNetworkResources();
+            Common.CleanupNetworkResources(_client);
             if (wasRunning)
                 Console.WriteLine("Disconnected");
         }

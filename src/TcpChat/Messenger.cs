@@ -47,13 +47,13 @@ namespace NetworkingLearning.TcpChat
                     Running = true;
                 else
                 {
-                    _cleanupNetworkResource();
+                    Common.CleanupNetworkResources(_client);
                     Console.WriteLine("The server rejected us; \"{0}\" is probably in use.", Name);
                 }
             }
             else
             {
-                _cleanupNetworkResource();
+                Common.CleanupNetworkResources(_client);
                 Console.WriteLine("Wasn't able to connect to the server at {0}.", endPoint);
             }
         }
@@ -87,16 +87,16 @@ namespace NetworkingLearning.TcpChat
                 }
             }
 
-            _cleanupNetworkResource();
+            Common.CleanupNetworkResources(_client);
             if (wasRunning)
                 Console.WriteLine("Disconnected.");
         }
 
-        private void _cleanupNetworkResource()
-        {
-            _msgStream?.Close();
-            _msgStream = null;
-            _client.Close();
-        }
+        // private void _cleanupNetworkResource()
+        // {
+        //     _msgStream?.Close();
+        //     _msgStream = null;
+        //     _client.Close();
+        // }
     }
 }
