@@ -65,7 +65,7 @@ namespace NetworkingLearning.TcpChat
             while (Running)
             {
                 Console.Write("{0}> ", Name);
-                string msg = Console.ReadLine();
+                string msg = Console.ReadLine();  // does this block?
 
                 if ((msg.ToLower() == "quit") || (msg.ToLower() == "exit"))
                 {

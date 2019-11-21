@@ -102,7 +102,19 @@ namespace NetworkingLearning.TcpChat
                     //}
 
                     string msg = Encoding.UTF8.GetString(msgBuffer);
-                    Console.WriteLine(msg);
+
+                    if (msg.StartsWith("STATUS:"))
+                    {
+                        string statusMsg = msg.Substring(msg.IndexOf(':') + 1);
+                        if (statusMsg == "PING")
+                        {
+                            byte[] responseBuffer = Encoding.UTF8.GetBytes("STATUS:PONG");
+                            _msgStream.Write(responseBuffer, 0, responseBuffer.Length);
+                        }
+                    }
+                    else {
+                        Console.WriteLine(msg);
+                    }
                 }
 
                 Thread.Sleep(10);
