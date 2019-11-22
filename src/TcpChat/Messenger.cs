@@ -61,21 +61,64 @@ namespace NetworkingLearning.TcpChat
         public void SendMessagesLoop()
         {
             bool wasRunning = Running;
+            bool didSubmit = false;
+            string inputMsg = "";
+            Console.Write("{0}> ", Name);
 
             while (Running)
             {
-                Console.Write("{0}> ", Name);
-                string msg = Console.ReadLine();  // does this block?
+                // string inputMsg = Console.ReadLine();  // does this block? yes it does!
 
-                if ((msg.ToLower() == "quit") || (msg.ToLower() == "exit"))
+                if (Console.KeyAvailable)
                 {
-                    Console.WriteLine("Disconnecting...");
-                    Running = false;
+                    ConsoleKeyInfo key = Console.ReadKey(true);
+                    switch (key.Key)
+                    {
+                        case ConsoleKey.Enter:
+                            didSubmit = true;
+                            break;
+                        default:
+                            inputMsg += key.KeyChar.ToString();
+                            Console.Write(key.KeyChar);
+                            break;
+                    }
                 }
-                else if (msg != string.Empty)
+
+                if (didSubmit)
                 {
-                    byte[] msgBuffer = Encoding.UTF8.GetBytes(msg);
-                    _msgStream.Write(msgBuffer, 0, msgBuffer.Length); // BLOCKS!!!!
+                    if ((inputMsg.ToLower() == "quit") || (inputMsg.ToLower() == "exit"))
+                    {
+                        Console.WriteLine("Disconnecting...");
+                        Running = false;
+                    }
+                    else if (inputMsg != string.Empty)
+                    {
+                        byte[] msgBuffer = Encoding.UTF8.GetBytes(inputMsg);
+                        _msgStream.Write(msgBuffer, 0, msgBuffer.Length); // BLOCKS!!!!
+                    }
+                    didSubmit = false;
+                    inputMsg = "";
+                    Console.WriteLine("");
+                    Console.Write("{0}> ", Name);
+                }
+
+                int messageLength = _client.Available;
+                if (messageLength > 0)
+                {
+                    byte[] msgBuffer = new byte[messageLength];
+                    _msgStream.Read(msgBuffer, 0, messageLength);
+
+                    string msg = Encoding.UTF8.GetString(msgBuffer);
+
+                    if (msg.StartsWith("STATUS:"))
+                    {
+                        string statusMsg = msg.Substring(msg.IndexOf(':') + 1);
+                        if (statusMsg == "PING")
+                        {
+                            byte[] responseBuffer = Encoding.UTF8.GetBytes("STATUS:PONG");
+                            _msgStream.Write(responseBuffer, 0, responseBuffer.Length);
+                        }
+                    }
                 }
 
                 Thread.Sleep(10);

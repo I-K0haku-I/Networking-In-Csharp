@@ -87,7 +87,6 @@ namespace NetworkingLearning.TcpChat
 
         private void _handlePing()
         {
-            Console.WriteLine("HandlingPing");
             byte[] msgBuffer = Encoding.UTF8.GetBytes("STATUS:PING");
 
             foreach (TcpClient v in _viewers)
@@ -110,6 +109,11 @@ namespace NetworkingLearning.TcpChat
 
         private void _cleanupClient(TcpClient client)
         {
+            if (_missedPongCounter.ContainsKey(client) && _missedPongCounter[client] > maxMissedPongs)
+            {
+                string name = _names[client];
+                Console.WriteLine($"Client \"{name}\" missed {maxMissedPongs} pings and got disconnected");
+            }
             _missedPongCounter.Remove(client);
             _clientsSaidBye.Remove(client);
             client.GetStream().Close();
@@ -133,7 +137,7 @@ namespace NetworkingLearning.TcpChat
             {
                 if (msg == "BYE")
                 {
-                    Console.WriteLine("{0} said BYE", _names[client]);  // potential crash when bye from someone who is not connected
+                    Console.WriteLine($"{client.Client.RemoteEndPoint} said BYE");
                     _clientsSaidBye.Add(client);
                 }
                 else if (msg == "PONG")
@@ -192,8 +196,8 @@ namespace NetworkingLearning.TcpChat
                     _messageQueue.Enqueue(String.Format("{0} has disconnected", name));
 
                     _messengers.Remove(m);
-                    _names.Remove(m);
                     _cleanupClient(m);
+                    _names.Remove(m);
                 }
             }
         }
