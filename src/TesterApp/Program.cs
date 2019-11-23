@@ -1,5 +1,6 @@
 ﻿using System;
-using NetworkingLearning.TcpChat;
+// using NetworkingLearning.TcpChat;
+using NetworkingLearning;
 
 namespace NetworkingLearning.TesterApp
 {
@@ -26,13 +27,19 @@ namespace NetworkingLearning.TesterApp
                 case "messenger":
                     DoMessenger(addressOrChatName, port);
                     break;
+                case "gameserver":
+                    DoGameServer(addressOrChatName, port);
+                    break;
+                case "gameclient":
+                    DoGameClient(addressOrChatName, port);
+                    break;
             }
         }
         
 
         private static void DoServer(string chatName, int port)
         {
-            var server = new Server(chatName, port);
+            var server = new TcpChat.Server(chatName, port);
 
             Console.CancelKeyPress += (object sender, ConsoleCancelEventArgs args) => { server.Shutdown(); args.Cancel = true; };
 
@@ -41,7 +48,7 @@ namespace NetworkingLearning.TesterApp
 
         private static void DoViewer(string address, int port)
         {
-            var viewer = new Viewer(address, port);
+            var viewer = new TcpChat.Viewer(address, port);
 
             Console.CancelKeyPress += (object sender, ConsoleCancelEventArgs args) => { viewer.Disconnect(); args.Cancel = true; };
 
@@ -54,11 +61,26 @@ namespace NetworkingLearning.TesterApp
             Console.Write("Enter a name to use: ");
             string name = Console.ReadLine();
 
-            var messenger = new Messenger(address, port, name);
+            var messenger = new TcpChat.Messenger(address, port, name);
 
             messenger.Connect();
             messenger.SendMessagesLoop();
         }
 
+        private static void DoGameServer(string gameName, int port)
+        {
+            var server = new TcpGame.Server(gameName, port);
+            Console.CancelKeyPress += (object sender, ConsoleCancelEventArgs args) => { server?.Shutdown(); args.Cancel = true; };
+
+            server.Run();
+        }
+
+        private static void DoGameClient(string hostName, int port)
+        {
+            var client = new TcpGame.Client(hostName, port);
+            Console.CancelKeyPress += (object sender, ConsoleCancelEventArgs args) => { client?.Disconnect(); args.Cancel = true; };
+            client.Connect();
+            client.Run();
+        }
     }
 }
