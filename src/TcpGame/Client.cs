@@ -61,7 +61,7 @@ namespace TcpGame
             else
             {
                 _cleanupNetworkResources();
-                Console.WriteLine("Wasn't able t oconnec to the server {0}:{1}.", ServerAddress, Port);
+                Console.WriteLine("Wasn't able to connect to the server {0}:{1}.", ServerAddress, Port);
             }
         }
 

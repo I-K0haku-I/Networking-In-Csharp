@@ -40,20 +40,19 @@ namespace TcpGame
 
         public void Run()
         {
-            bool running = (_player != null);
-            if (running)
-            {
-                Packet introPacket = new Packet("message",
-                    "Welcome player, I want you to guess my number.\n" +
-                    "It's somewhere between (and including) 1 and 100.\n");
-                _server.SendPacket(_player, introPacket).GetAwaiter().GetResult();
-            }
-            else
+            if (_player == null)
                 return;
+
+
+            Packet introPacket = new Packet("message",
+                "Welcome player, I want you to guess my number.\n" +
+                "It's somewhere between (and including) 1 and 100.\n");
+            _server.SendPacket(_player, introPacket).GetAwaiter().GetResult();
 
             int theNumber = _rng.Next(1, 101);
             Console.WriteLine("Our number is: {0}", theNumber);
 
+            bool running = true;
             bool correct = false;
             bool clientConnected = true;
             bool clientDisconnectedGracefully = false;
@@ -104,7 +103,7 @@ namespace TcpGame
                 running &= !correct;
 
                 if (!_needToDisconnectClient && !clientDisconnectedGracefully)
-                    clientConnected &= Server.IsDisconnected(_player);
+                    clientConnected &= !Server.IsDisconnected(_player);
                 else
                     clientConnected = false;
 
